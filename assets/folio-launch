@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -euo pipefail
+software=${FOLIO_SOFTWARE_RENDERING:-0}
+case ${1:-} in
+  --software) software=1; shift ;;
+  --hardware) software=0; shift ;;
+esac
+if [[ $software == 1 ]]; then
+  shopt -s nullglob
+  drivers=(/run/opengl-driver/share/vulkan/icd.d/lvp_icd*.json)
+  if [[ ${#drivers[@]} != 1 ]]; then
+    echo 'Folio: explicit software rendering requires the Lavapipe Vulkan driver.' >&2
+    exit 1
+  fi
+  export VK_DRIVER_FILES=${drivers[0]}
+  unset VK_ICD_FILENAMES WGPU_ADAPTER_NAME
+  export WGPU_BACKEND=vulkan FOLIO_REQUIRE_HARDWARE=0
+else
+  export FOLIO_REQUIRE_HARDWARE=${FOLIO_REQUIRE_HARDWARE:-1}
+  if [[ -d /sys/module/virtio_gpu && -z ${WGPU_BACKEND:-} ]]; then
+    export WGPU_BACKEND=gl
+  fi
+fi
+if [[ ${1:-} != -* && $# -gt 0 ]]; then
+  set -- -- "$@"
+fi
+exec "${BASH_SOURCE[0]%/*}/../libexec/folio" "$@"
