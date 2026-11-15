@@ -8,15 +8,20 @@ import platform
 import subprocess
 import tarfile
 import tempfile
+import tomllib
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("app", choices=("folio", "vereda", "vitals"))
     parser.add_argument("source", type=Path)
-    parser.add_argument("--version", default="0.1.0")
+    parser.add_argument("--version")
     args = parser.parse_args()
     source = args.source.resolve(strict=True)
+    source_version = tomllib.loads((source / "Cargo.toml").read_text())["package"]["version"]
+    args.version = args.version or source_version
+    if args.version != source_version:
+        parser.error("release version must match Cargo.toml")
     repository = Path(__file__).resolve().parent
     dirty = subprocess.check_output(["git", "status", "--porcelain"], cwd=source, text=True)
     if dirty:

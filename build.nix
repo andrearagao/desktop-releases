@@ -81,7 +81,7 @@ let
 in
 rustPlatform.buildRustPackage {
   pname = app;
-  version = "0.1.0";
+  version = (builtins.fromTOML (builtins.readFile (source + "/Cargo.toml"))).package.version;
   src = source;
   cargoLock.lockFile = source + "/Cargo.lock";
   postPatch = "ln -s ${rune} .rune-source";

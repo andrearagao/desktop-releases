@@ -14,6 +14,6 @@ Use the same clean, committed source revision on both native architectures. The 
 python3 build.py folio /absolute/path/to/folio
 ```
 
-Replace `folio` with `vereda` or `vitals` for the other applications. The archive command records the source revision and native architecture in `share/release.json`. Publish both architectures and their checksums together. Never replace an existing release asset; publish a new version and update the Nix hashes.
+Replace `folio` with `vereda` or `vitals` for the other applications. The release version comes from `Cargo.toml`; commit a version bump before publishing a new version. The archive command records the source revision and native architecture in `share/release.json`. Publish both architectures and their checksums together. Never replace an existing release asset; publish a new version and update the Nix hashes.
 
 The publisher needs private source access. Installing a published package does not.
