@@ -26,12 +26,11 @@ let
           hash = "sha256-e6f1kr0qvTT13YKZIGhiFee33RwydeVX60Yz23j/cQA=";
           fetchSubmodules = true;
         };
-        patches = map (path: source + path) [
-          "/experiments/opengl/rune-gpu-setup.patch"
-          "/experiments/opengl/rune-opengl.patch"
-          "/nix/rune-font-loading.patch"
-          "/nix/rune-hardware-policy.patch"
-        ];
+        patches = map (path: source + "/${path}") (
+          builtins.filter (path: path != "") (
+            lib.splitString "\n" (builtins.readFile (source + "/nix/rune-patches.txt"))
+          )
+        );
       }
     else
       callPackage (source + "/nix/rune-source.nix") { };
