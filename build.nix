@@ -27,9 +27,20 @@ let
           fetchSubmodules = true;
         };
         patches = map (path: source + "/${path}") (
-          builtins.filter (path: path != "") (
-            lib.splitString "\n" (builtins.readFile (source + "/nix/rune-patches.txt"))
-          )
+          if builtins.pathExists (source + "/nix/rune-patches.txt") then
+            builtins.filter (path: path != "") (
+              lib.splitString "\n" (builtins.readFile (source + "/nix/rune-patches.txt"))
+            )
+          else
+            [
+              "experiments/opengl/rune-gpu-setup.patch"
+              "experiments/opengl/rune-opengl.patch"
+              "nix/rune-font-loading.patch"
+              "nix/rune-hardware-policy.patch"
+            ]
+            ++ lib.optional (builtins.pathExists (
+              source + "/nix/rune-keyboard-focus.patch"
+            )) "nix/rune-keyboard-focus.patch"
         );
       }
     else
